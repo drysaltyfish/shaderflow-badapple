@@ -20,7 +20,7 @@ uv run python badapple.py --size 64 --duration 60
 uv run python badapple.py --size 32 --fps 2.14 --out out/my.wgsl
 ```
 
-默认输入 `tools/ardu_apple/data/source.mp4`（[justecorruptio/ardu_apple](https://github.com/justecorruptio/ardu_apple)
+默认输入 `./source.mp4`（[justecorruptio/ardu_apple](https://github.com/justecorruptio/ardu_apple)
 里的 Bad Apple 原片，480×360、30 fps、219.15 s）。输出是**可直接整段粘贴**
 进 `http://<host>/player/` 编辑框的 WGSL。
 
