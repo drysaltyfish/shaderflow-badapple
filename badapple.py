@@ -50,7 +50,7 @@ from pathlib import Path
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-DEFAULT_VIDEO = HERE.parent / "ardu_apple" / "data" / "source.mp4"
+DEFAULT_VIDEO = HERE / "source.mp4"
 MAX_CODE_BYTES = 65536
 LUMA = np.array([0.2126, 0.7152, 0.0722], dtype=np.float32)   # Rec.709
 
@@ -458,9 +458,15 @@ def decode_editable(text: str) -> np.ndarray:
     arrays = {}
     for name in ("data", "index"):
         m = re.search(rf"var {name} = array<u32, (\d+)>\((.*?)\n  \);", text, re.S)
+        assert m is not None
         arrays[name] = [int(v, 0) for v in
                         re.findall(r"0x[0-9a-fA-F]+|\d+", m.group(2))]
-    nf, size, bn, bs, bmap = (int(re.search(rf"let {k} = (\d+)u;", text).group(1))
+    def get_constant(name: str) -> int:
+        match = re.search(rf"let {name} = (\d+)u;", text)
+        assert match is not None
+        return int(match.group(1))
+
+    nf, size, bn, bs, bmap = (get_constant(k)
                               for k in ("nf", "size", "bn", "bs", "bmap"))
     words, index_l = arrays["data"], arrays["index"]
     img_bits = bs * bs
@@ -620,7 +626,8 @@ def main() -> int:
         epilog="示例：\n"
                "  uv run python ardu_video/badapple.py --fps 2.14 --size 32\n"
                "  uv run python ardu_video/badapple.py --duration 219 --min-fps 2\n"
-               "  uv run python ardu_video/badapple.py --fps 5 --out out/a.wgsl\n" + __doc__)
+               "  uv run python ardu_video/badapple.py --fps 5 --out out/a.wgsl\n"
+               + (__doc__ or ""))
     ap.add_argument("--video", type=Path, default=DEFAULT_VIDEO, help="输入视频")
     ap.add_argument("--fps", type=float, default=None, help="期望播放帧率")
     ap.add_argument("--size", type=int, default=None, help="存储分辨率（4 的倍数）")
